@@ -65,9 +65,8 @@ func (scanner *Scanner) Scan() {
 func (scanner *Scanner) SigHandler() {
 
 	for {
-		signal := <-scanner.SigChan
-		switch signal {
-		case "scan":
+		select {
+		case <-scanner.SigChan:
 			scanner.Scan()
 		}
 	}
