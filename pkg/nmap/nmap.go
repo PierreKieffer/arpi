@@ -8,9 +8,12 @@ import (
 	"strings"
 )
 
-type ScanData struct {
-	Time    string
-	Devices []Device
+type Scanner struct {
+	Network    string
+	Time       string
+	StatusLine string
+	Devices    []Device
+	LogChan    chan string
 }
 
 type Device struct {
@@ -18,31 +21,51 @@ type Device struct {
 	Name string
 }
 
-func Scan(net string) {
-	cmd := exec.Command("nmap", "-sn", net)
+func (scanner *Scanner) Scan() {
+
+	if scanner.LogChan == nil {
+		scanner.LogChan = make(chan string)
+	}
+
+	scanner.LogChan <- "Network scan in progress ... "
+
+	cmd := exec.Command("nmap", "-sn", scanner.Network)
+
 	var out bytes.Buffer
+
 	cmd.Stdout = &out
 	err := cmd.Run()
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ParseScannerOutput(out.String())
+	scanner.ParseScannerOutput(out.String())
+
+	fmt.Println(scanner)
+
+	scanner.LogChan <- "Network scan completed"
 }
 
-func ParseScannerOutput(scannerOutput string) (*ScanData, error) {
+func (scanner *Scanner) ListenScanStatus() {
+	for {
+		select {
+		case status := <-scanner.LogChan:
+			fmt.Println(status)
+		}
+	}
+}
+
+func (scanner *Scanner) ParseScannerOutput(scannerOutput string) error {
 	outArray := strings.Split(scannerOutput, "\n")
 	outArray = outArray[1 : len(outArray)-1]
 
-	var scanData ScanData
-
 	header := outArray[0]
-	footer := outArray[len(outArray)-1]
-
+	statusLine := outArray[len(outArray)-1]
 	time := ExtractTimestamp(header)
 
-	fmt.Println(time)
-	fmt.Println(footer)
+	scanner.Time = time
+	scanner.StatusLine = statusLine
 
 	var netData []string
 	for _, v := range outArray[1 : len(outArray)-1] {
@@ -52,25 +75,22 @@ func ParseScannerOutput(scannerOutput string) (*ScanData, error) {
 
 	}
 
-	fmt.Println(netData)
+	scanner.ProcessNetData(netData)
 
-	return &scanData, nil
+	return nil
 
 }
 
-func ProcessNetData(netData []string) {
+func (scanner *Scanner) ProcessNetData(netData []string) {
 
 	var devices []Device
 
 	for _, v := range netData {
-		/*
-			Nmap scan report for raspberrypi (192.168.1.68)
-		*/
-		rawDeviceScan := strings.Replace(v, "Nmap scan report for ", "", -1)
-		deviceName := strings.Split(rawDeviceScan, " ")[0]
-		deviceIP := strings.Split(rawDeviceScan, " ")[1]
+		device := ExtractDeviceData(v)
+		devices = append(devices, device)
 	}
 
+	scanner.Devices = devices
 }
 
 func ExtractTimestamp(scanHeader string) string {
@@ -80,5 +100,13 @@ func ExtractTimestamp(scanHeader string) string {
 }
 
 func ExtractDeviceData(rawDeviceScan string) Device {
+	rawDeviceScanFmt := strings.Replace(rawDeviceScan, "Nmap scan report for ", "", -1)
+	deviceName := strings.Split(rawDeviceScanFmt, " ")[0]
+	deviceIP := strings.Split(rawDeviceScanFmt, " ")[1]
+	device := Device{
+		IP:   deviceIP,
+		Name: deviceName,
+	}
 
+	return device
 }
