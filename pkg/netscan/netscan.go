@@ -1,4 +1,4 @@
-package nmap
+package netscan
 
 import (
 	"bytes"
@@ -19,6 +19,7 @@ type Scanner struct {
 
 type Device struct {
 	IP   string
+	MAC  string
 	Name string
 }
 
@@ -104,7 +105,6 @@ func (scanner *Scanner) ParseScannerOutput(scannerOutput string) error {
 	scanner.ProcessNetData(netData)
 
 	return nil
-
 }
 
 func (scanner *Scanner) ProcessNetData(netData []string) {

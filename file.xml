@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.60 scan initiated Thu Jul 22 15:14:54 2021 as: nmap -sP -oX file.xml 192.168.1.0/24 -->
+<nmaprun scanner="nmap" args="nmap -sP -oX file.xml 192.168.1.0/24" start="1626959694" startstr="Thu Jul 22 15:14:54 2021" version="7.60" xmloutputversion="1.04">
+<verbose level="0"/>
+<debugging level="0"/>
+<host><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="192.168.1.47" addrtype="ipv4"/>
+<address addr="3C:6A:A7:48:63:86" addrtype="mac"/>
+<hostnames>
+<hostname name="GISBERT-A" type="PTR"/>
+</hostnames>
+<times srtt="10000" rttvar="10000" to="100000"/>
+</host>
+<host><status state="up" reason="arp-response" reason_ttl="0"/>
+<address addr="192.168.1.254" addrtype="ipv4"/>
+<address addr="44:D4:53:B7:CD:8C" addrtype="mac"/>
+<hostnames>
+<hostname name="bbox.lan" type="PTR"/>
+</hostnames>
+<times srtt="-83413" rttvar="29010" to="100000"/>
+</host>
+<host><status state="up" reason="localhost-response" reason_ttl="0"/>
+<address addr="192.168.1.82" addrtype="ipv4"/>
+<hostnames>
+<hostname name="pierre-XPS-13-9380" type="PTR"/>
+</hostnames>
+</host>
+<runstats><finished time="1626959702" timestr="Thu Jul 22 15:15:02 2021" elapsed="7.25" summary="Nmap done at Thu Jul 22 15:15:02 2021; 256 IP addresses (3 hosts up) scanned in 7.25 seconds" exit="success"/><hosts up="3" down="253" total="256"/>
+</runstats>
+</nmaprun>
