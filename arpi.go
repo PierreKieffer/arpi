@@ -8,12 +8,14 @@ import (
 var exit = make(chan bool)
 
 func main() {
-	net := flag.String("net", "192.168.1.0/24", "Network")
-	var scanner = &nmap.Scanner{}
-	scanner.Network = *net
 
-	go scanner.ListenScanStatus()
-	go scanner.Scan()
+	net := flag.String("net", "192.168.1.0/24", "Network")
+
+	scanner := nmap.InitScanner(*net)
+
+	go scanner.LogHandler()
+	go scanner.SigHandler()
+	scanner.SigChan <- "scan"
 
 	<-exit
 

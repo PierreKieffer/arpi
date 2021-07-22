@@ -14,6 +14,7 @@ type Scanner struct {
 	StatusLine string
 	Devices    []Device
 	LogChan    chan string
+	SigChan    chan string
 }
 
 type Device struct {
@@ -21,11 +22,24 @@ type Device struct {
 	Name string
 }
 
-func (scanner *Scanner) Scan() {
+func InitScanner(network string) *Scanner {
+	var scanner = &Scanner{}
+	scanner.Network = network
+	scanner.InitChan()
+	return scanner
+}
 
+func (scanner *Scanner) InitChan() {
 	if scanner.LogChan == nil {
 		scanner.LogChan = make(chan string)
 	}
+
+	if scanner.SigChan == nil {
+		scanner.SigChan = make(chan string)
+	}
+}
+
+func (scanner *Scanner) Scan() {
 
 	scanner.LogChan <- "Network scan in progress ... "
 
@@ -34,8 +48,8 @@ func (scanner *Scanner) Scan() {
 	var out bytes.Buffer
 
 	cmd.Stdout = &out
-	err := cmd.Run()
 
+	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +61,19 @@ func (scanner *Scanner) Scan() {
 	scanner.LogChan <- "Network scan completed"
 }
 
-func (scanner *Scanner) ListenScanStatus() {
+func (scanner *Scanner) SigHandler() {
+
+	for {
+		signal := <-scanner.SigChan
+		switch signal {
+		case "scan":
+			scanner.Scan()
+		}
+	}
+}
+
+func (scanner *Scanner) LogHandler() {
+
 	for {
 		select {
 		case status := <-scanner.LogChan:
