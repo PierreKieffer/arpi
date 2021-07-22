@@ -1,3 +1,4 @@
 # arpi 
-Basic network scanner for Raspberry Pi 
+Basic network scanner based on nmap for Raspberry Pi. 
+
 
