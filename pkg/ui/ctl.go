@@ -79,5 +79,17 @@ func HelpList() *widgets.List {
 }
 
 func ExecScan() {
+}
 
+func ScanLogHandler(scanner *netscan.Scanner, signal chan bool) {
+
+	for {
+		select {
+		case signal:
+			return
+
+		case log := <-scanner.LogChan:
+
+		}
+	}
 }

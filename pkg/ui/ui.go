@@ -53,6 +53,14 @@ func (screen *BaseScreen) Create() {
 		d.SetRect(16, 7, x, y)
 		termui.Render(h, ls, d)
 
+	} else if screen.Display == nil && screen.Status != nil {
+
+		s := screen.Status
+
+		ls.SetRect(0, 10, x, y)
+		s.SetRect(0, 7, x, 10)
+		termui.Render(h, ls, s)
+
 	} else {
 		d := screen.Display
 		d.TitleStyle.Fg = termui.ColorYellow
@@ -79,10 +87,14 @@ func (screen *BaseScreen) HandleSelectItem() {
 		var previousScreen BaseScreen
 		previousScreen = *screen
 
-		items := HelpList()
 		screen.Screen = "scan"
-		screen.UIList = items
-		screen.Display = Help()
+
+		screen.UIList.Rows = []string{}
+		screen.UIList.Title = "Network scan result | Return : 'enter' | Top : 'gg' | Bottom 'G'"
+		screen.Status = widgets.NewParagraph()
+		screen.Status.Text = "Test status bar"
+		screen.Display = nil
+
 		screen.Previous = &previousScreen
 
 	case " Help ":
