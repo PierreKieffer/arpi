@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"github.com/PierreKieffer/arpi/pkg/netscan"
+	// "fmt"
+	// "github.com/PierreKieffer/arpi/pkg/netscan"
+	"github.com/PierreKieffer/arpi/pkg/ui"
 )
 
-var exit = make(chan bool)
+// var exit = make(chan bool)
 
 var banner = `
 
@@ -17,16 +18,17 @@ var banner = `
 
 func main() {
 
-	fmt.Println(banner)
-
 	net := flag.String("net", "192.168.1.0/24", "Network")
+	ui.App(*net)
 
-	scanner := netscan.InitScanner(*net)
+	// fmt.Println(banner)
 
-	go scanner.LogHandler()
-	go scanner.SigHandler()
-	scanner.SigChan <- "scan"
+	// scanner := netscan.InitScanner(*net)
 
-	<-exit
+	// go scanner.LogHandler()
+	// go scanner.SigHandler()
+	// scanner.SigChan <- "scan"
+
+	// <-exit
 
 }

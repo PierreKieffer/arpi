@@ -41,7 +41,6 @@ func (scanner *Scanner) InitChan() {
 
 func (scanner *Scanner) Scan() {
 	scanner.PingScan()
-	scanner.OSDetection()
 }
 
 func (scanner *Scanner) PingScan() {
