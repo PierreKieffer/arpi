@@ -40,7 +40,11 @@ func (scanner *Scanner) InitChan() {
 }
 
 func (scanner *Scanner) Scan() {
+	scanner.PingScan()
+	scanner.OSDetection()
+}
 
+func (scanner *Scanner) PingScan() {
 	scanner.LogChan <- "Network scan in progress ... "
 
 	cmd := exec.Command("sudo", "nmap", "-sP", scanner.Network, "-oX", "/tmp/arpi.xml")
@@ -54,11 +58,33 @@ func (scanner *Scanner) Scan() {
 		log.Fatal(err)
 	}
 
-	scanner.ProcessScanOutput()
+	scanner.ProcessPingScan()
 
 	fmt.Println(scanner)
 
 	scanner.LogChan <- "Network scan completed"
+}
+
+func (scanner *Scanner) OSDetection() {
+
+	for _, host := range scanner.Devices {
+
+		outputFile := fmt.Sprintf("/tmp/arpi_%v.xml", host.IP)
+
+		cmd := exec.Command("sudo", "nmap", "-O", "-p", "80", host.IP, "-oX", outputFile)
+
+		var out bytes.Buffer
+
+		cmd.Stdout = &out
+
+		err := cmd.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		host.ProcessOSDetection()
+
+	}
 }
 
 func (scanner *Scanner) SigHandler() {
@@ -81,17 +107,16 @@ func (scanner *Scanner) LogHandler() {
 	}
 }
 
-func (scanner *Scanner) ProcessScanOutput() {
-	scanOutputData, err := ExtractOutputData()
+func (scanner *Scanner) ProcessPingScan() {
+	outputData, err := ExtractPingScanData()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	scanner.Time = scanOutputData.Startstr
-	scanner.Summary = scanOutputData.Runstats.Finished.Summary
+	scanner.Time = outputData.Startstr
+	scanner.Summary = outputData.Runstats.Finished.Summary
 
 	var devices []Device
-	for _, host := range scanOutputData.Host {
+	for _, host := range outputData.Host {
 
 		var device Device
 		device.Name = host.Hostnames.Hostname.Name
@@ -108,4 +133,23 @@ func (scanner *Scanner) ProcessScanOutput() {
 		devices = append(devices, device)
 	}
 	scanner.Devices = devices
+}
+
+func (device *Device) ProcessOSDetection() {
+
+	fmt.Println(" -------------------------------- ")
+
+	outputFile := fmt.Sprintf("/tmp/arpi_%v.xml", device.IP)
+
+	outputData, err := ExtractScanOSData(outputFile)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, os := range outputData.Host.Os.Osmatch {
+		fmt.Println(os.Osclass)
+
+	}
+
 }
