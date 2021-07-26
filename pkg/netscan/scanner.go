@@ -59,8 +59,6 @@ func (scanner *Scanner) PingScan() {
 
 	scanner.ProcessPingScan()
 
-	fmt.Println(scanner)
-
 	scanner.LogChan <- "Network scan completed"
 }
 

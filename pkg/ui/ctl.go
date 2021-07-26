@@ -2,6 +2,7 @@ package ui
 
 import (
 	// termui "github.com/gizak/termui/v3"
+	"github.com/PierreKieffer/arpi/pkg/netscan"
 	"github.com/gizak/termui/v3/widgets"
 )
 
@@ -19,7 +20,7 @@ func BuildHeader() *widgets.Paragraph {
 func Home() (*widgets.List, *widgets.Paragraph) {
 	options := widgets.NewList()
 	options.Title = "Home"
-	options.Rows = []string{" Scan ", " Help "}
+	options.Rows = []string{" Scan ", " About "}
 
 	details := widgets.NewParagraph()
 	details.Text = `
@@ -70,7 +71,7 @@ func Help() *widgets.Paragraph {
 func HelpList() *widgets.List {
 
 	helpList := widgets.NewList()
-	helpList.Title = "Help"
+	helpList.Title = "About"
 
 	utils := []string{" Home "}
 	helpList.Rows = append(helpList.Rows, utils...)
@@ -78,18 +79,6 @@ func HelpList() *widgets.List {
 	return helpList
 }
 
-func ExecScan() {
-}
-
-func ScanLogHandler(scanner *netscan.Scanner, signal chan bool) {
-
-	for {
-		select {
-		case signal:
-			return
-
-		case log := <-scanner.LogChan:
-
-		}
-	}
+func ExecScan(scanner *netscan.Scanner) {
+	scanner.Scan()
 }

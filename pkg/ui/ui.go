@@ -1,9 +1,12 @@
 package ui
 
 import (
+	"fmt"
+	"github.com/PierreKieffer/arpi/pkg/netscan"
 	termui "github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
 	"log"
+	"time"
 )
 
 type BaseScreen struct {
@@ -15,6 +18,12 @@ type BaseScreen struct {
 
 	Previous *BaseScreen
 }
+
+var (
+	signal     = make(chan bool)
+	scanner    = &netscan.Scanner{}
+	baseScreen BaseScreen
+)
 
 func (screen *BaseScreen) Create() {
 
@@ -75,12 +84,65 @@ func (screen *BaseScreen) Create() {
 	}
 }
 
+func (screen *BaseScreen) Update() {
+
+	// x, y := termui.TerminalDimensions()
+
+	// ls := screen.UIList
+	// status := screen.Status
+
+	switch screen.Screen {
+	case "scan":
+
+		go ExecScan(scanner)
+
+		go func() {
+			for {
+				select {
+
+				case <-signal:
+					return
+
+				case log := <-scanner.LogChan:
+					screen.Status.Text = log
+					termui.Render(screen.Status)
+
+					if log == "Network scan completed" {
+						screen.Status.Text = fmt.Sprintf("%v : %v", log, scanner.Summary)
+						screen.UIList.Rows = []string{" Home ", " Scan again ", ""}
+						termui.Render(screen.Status, screen.UIList)
+						signal <- true
+					}
+
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}()
+
+	case "home":
+		screen.Create()
+	}
+}
+
 func (screen *BaseScreen) HandleSelectItem() {
+
+	// if screen.Screen == "scan" {
+	// signal <- true
+
+	// screen.UIList.Rows = []string{"data"}
+	// screen.UIList.Title = "Scan is now finished"
+	// screen.Status = widgets.NewParagraph()
+	// screen.Status.Text = ""
+	// screen.Display = nil
+
+	// screen.Update()
+	// return
+	// }
 
 	selectedItem := screen.UIList.Rows[screen.UIList.SelectedRow]
 
 	switch selectedItem {
-	case " Scan ":
+	case " Scan ", " Scan again ":
 		/*
 			Execute scan
 		*/
@@ -92,12 +154,12 @@ func (screen *BaseScreen) HandleSelectItem() {
 		screen.UIList.Rows = []string{}
 		screen.UIList.Title = "Network scan result | Return : 'enter' | Top : 'gg' | Bottom 'G'"
 		screen.Status = widgets.NewParagraph()
-		screen.Status.Text = "Test status bar"
+		screen.Status.Text = ""
 		screen.Display = nil
 
 		screen.Previous = &previousScreen
 
-	case " Help ":
+	case " About ":
 		/*
 		   Go to Help page
 		*/
@@ -115,11 +177,12 @@ func (screen *BaseScreen) HandleSelectItem() {
 		screen.Screen = "home"
 		screen.UIList = items
 		screen.Display = details
+		screen.Status = nil
 		screen.Previous = nil
 	}
-}
 
-var baseScreen BaseScreen
+	screen.Update()
+}
 
 func App(network string) {
 
@@ -127,6 +190,9 @@ func App(network string) {
 		log.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer termui.Close()
+
+	scanner.Network = network
+	scanner.InitChan()
 
 	baseScreen.Create()
 
@@ -140,17 +206,13 @@ func App(network string) {
 		case "q", "<C-c>":
 			return
 		case "j", "<Down>":
-			baseScreen.UIList.ScrollDown()
+			if len(baseScreen.UIList.Rows) > 0 {
+				baseScreen.UIList.ScrollDown()
+			}
 		case "k", "<Up>":
-			baseScreen.UIList.ScrollUp()
-		case "<C-d>":
-			baseScreen.UIList.ScrollHalfPageDown()
-		case "<C-u>":
-			baseScreen.UIList.ScrollHalfPageUp()
-		case "<C-f>":
-			baseScreen.UIList.ScrollPageDown()
-		case "<C-b>":
-			baseScreen.UIList.ScrollPageUp()
+			if len(baseScreen.UIList.Rows) > 0 {
+				baseScreen.UIList.ScrollUp()
+			}
 		case "<Enter>":
 			baseScreen.HandleSelectItem()
 		case "g":
