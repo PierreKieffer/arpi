@@ -2,6 +2,7 @@ package ui
 
 import (
 	// termui "github.com/gizak/termui/v3"
+	"fmt"
 	"github.com/PierreKieffer/arpi/pkg/netscan"
 	"github.com/gizak/termui/v3/widgets"
 )
@@ -79,6 +80,38 @@ func HelpList() *widgets.List {
 	return helpList
 }
 
-func ExecScan(scanner *netscan.Scanner) {
-	scanner.Scan()
+func BuildScanReport(scanner *netscan.Scanner) []string {
+
+	var report []string
+
+	report = []string{" Home ", " Scan again ", "", "", "        IP       |        MAC        |          NAME          ", "---------------------------------------------------------------"}
+
+	for _, device := range scanner.Devices {
+		reportLine := fmt.Sprintf("%v%v%v", FmtReport("ip", device.IP), FmtReport("mac", device.MAC), FmtReport("name", device.Name))
+		report = append(report, reportLine)
+	}
+
+	return report
+}
+
+func FmtReport(valueType string, value string) string {
+	switch valueType {
+	case "ip":
+		value = fmt.Sprintf(" %v", value)
+		for len(value) < 17 {
+			value = fmt.Sprintf("%v ", value)
+		}
+		return fmt.Sprintf("%v|", value)
+	case "mac":
+		value = fmt.Sprintf(" %v", value)
+		for len(value) < 19 {
+			value = fmt.Sprintf("%v ", value)
+		}
+		return fmt.Sprintf("%v|", value)
+	case "name":
+		value = fmt.Sprintf(" %v", value)
+		return value
+	}
+
+	return ""
 }

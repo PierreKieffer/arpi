@@ -23,6 +23,7 @@ var (
 	signal     = make(chan bool)
 	scanner    = &netscan.Scanner{}
 	baseScreen BaseScreen
+	uiEvents   = termui.PollEvents()
 )
 
 func (screen *BaseScreen) Create() {
@@ -86,15 +87,10 @@ func (screen *BaseScreen) Create() {
 
 func (screen *BaseScreen) Update() {
 
-	// x, y := termui.TerminalDimensions()
-
-	// ls := screen.UIList
-	// status := screen.Status
-
 	switch screen.Screen {
 	case "scan":
 
-		go ExecScan(scanner)
+		go scanner.Scan()
 
 		go func() {
 			for {
@@ -105,16 +101,19 @@ func (screen *BaseScreen) Update() {
 
 				case log := <-scanner.LogChan:
 					screen.Status.Text = log
+					time.Sleep(1 * time.Second)
 					termui.Render(screen.Status)
 
 					if log == "Network scan completed" {
+
 						screen.Status.Text = fmt.Sprintf("%v : %v", log, scanner.Summary)
-						screen.UIList.Rows = []string{" Home ", " Scan again ", ""}
+						screen.UIList.Rows = BuildScanReport(scanner)
+						screen.UIList.SelectedRow = 0
+						time.Sleep(1 * time.Second)
 						termui.Render(screen.Status, screen.UIList)
 						signal <- true
 					}
 
-					time.Sleep(1 * time.Second)
 				}
 			}
 		}()
@@ -125,19 +124,6 @@ func (screen *BaseScreen) Update() {
 }
 
 func (screen *BaseScreen) HandleSelectItem() {
-
-	// if screen.Screen == "scan" {
-	// signal <- true
-
-	// screen.UIList.Rows = []string{"data"}
-	// screen.UIList.Title = "Scan is now finished"
-	// screen.Status = widgets.NewParagraph()
-	// screen.Status.Text = ""
-	// screen.Display = nil
-
-	// screen.Update()
-	// return
-	// }
 
 	selectedItem := screen.UIList.Rows[screen.UIList.SelectedRow]
 
@@ -152,7 +138,7 @@ func (screen *BaseScreen) HandleSelectItem() {
 		screen.Screen = "scan"
 
 		screen.UIList.Rows = []string{}
-		screen.UIList.Title = "Network scan result | Return : 'enter' | Top : 'gg' | Bottom 'G'"
+		screen.UIList.Title = "Network scan report"
 		screen.Status = widgets.NewParagraph()
 		screen.Status.Text = ""
 		screen.Display = nil
@@ -179,6 +165,9 @@ func (screen *BaseScreen) HandleSelectItem() {
 		screen.Display = details
 		screen.Status = nil
 		screen.Previous = nil
+
+	default:
+		return
 	}
 
 	screen.Update()
@@ -198,8 +187,6 @@ func App(network string) {
 
 	previousKey := ""
 
-	uiEvents := termui.PollEvents()
-
 	for {
 		e := <-uiEvents
 		switch e.ID {
@@ -208,6 +195,11 @@ func App(network string) {
 		case "j", "<Down>":
 			if len(baseScreen.UIList.Rows) > 0 {
 				baseScreen.UIList.ScrollDown()
+				selectedItem := baseScreen.UIList.Rows[baseScreen.UIList.SelectedRow]
+				if selectedItem != " Home " && selectedItem != " Scan " && selectedItem != " Scan again " && selectedItem != " About " {
+
+					baseScreen.UIList.ScrollUp()
+				}
 			}
 		case "k", "<Up>":
 			if len(baseScreen.UIList.Rows) > 0 {
