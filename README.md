@@ -10,8 +10,7 @@ Basic network scanner based on nmap for Raspberry Pi.
 
 <img src="./assets/demo.gif"/>
 
-
-
+<br/><br/>
 
 <img src="./assets/arpi.jpg"/>
 
