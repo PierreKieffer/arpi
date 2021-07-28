@@ -112,6 +112,7 @@ func (screen *BaseScreen) Update() {
 					if log == "Network scan completed" {
 
 						screen.Status.Text = fmt.Sprintf("%v : %v", log, scanner.Summary)
+						screen.Status.Text = "Network scan completed : Nmap done at Wed Jul 28 13:14:35 2021; 256 IP addresses (5 hosts up) scanned in 6.00 seconds"
 						screen.Status.TextStyle.Fg = termui.ColorGreen
 						screen.UIList.Rows = BuildScanReport(scanner)
 						screen.UIList.SelectedRow = 0

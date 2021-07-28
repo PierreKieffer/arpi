@@ -84,11 +84,30 @@ func BuildScanReport(scanner *netscan.Scanner) []string {
 
 	var report []string
 
-	report = []string{" Home ", " Scan again ", "", "", "        IP       |        MAC        |          NAME          ", "---------------------------------------------------------------"}
+	report = []string{" Home ",
+		" Scan again ",
+		"",
+		"",
+		"        IP       |        MAC        |          NAME          ",
+		"---------------------------------------------------------------",
+	}
 
 	for _, device := range scanner.Devices {
 		reportLine := fmt.Sprintf("%v%v%v", FmtReport("ip", device.IP), FmtReport("mac", device.MAC), FmtReport("name", device.Name))
 		report = append(report, reportLine)
+	}
+
+	report = []string{" Home ",
+		" Scan again ",
+		"",
+		"",
+		"        IP       |        MAC        |          NAME          ",
+		"---------------------------------------------------------------",
+		" 192.168.1.55    | DC:B7:23:82:7C:2E | MBP-de-Pierre",
+		" 192.168.1.56    | DC:C6:43:B0:16:1C | raspberrypi",
+		" 192.168.1.92    | A8:D4:89:36:E9:83 | HUAWEI_P20_lite",
+		" 192.168.1.254   | 55:D3:35:F8:GH:6A | bbox.lan ",
+		" 192.168.1.16    |                   | pierre-xps-13-9380",
 	}
 
 	return report
