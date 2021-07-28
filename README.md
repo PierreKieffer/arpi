@@ -29,7 +29,7 @@ arpi is built on top of nmap.
 sudo apt update && sudo apt install nmap
 ```
 
-### 32-bit 
+### 32-bit ARM 
 ```bash 
 curl -sSL https://raw.githubusercontent.com/PierreKieffer/arpi/master/install/install_arpi32.sh | bash
 ```
