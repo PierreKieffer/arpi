@@ -19,7 +19,7 @@ Basic network scanner based on nmap for Raspberry Pi.
 
 **Note**: Prebuilt binaries (32-bit) doesn't require Go.
 
-- Prerequisity : arpi is built on top of nmap. 
+- Prerequisite : arpi is built on top of nmap. 
 ```bash
 sudo apt install nmap
 ```
