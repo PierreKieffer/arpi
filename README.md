@@ -21,7 +21,7 @@ Basic network scanner based on nmap for Raspberry Pi.
 
 - Prerequisite : arpi is built on top of nmap. 
 ```bash
-sudo apt install nmap
+sudo apt update && sudo apt install nmap
 ```
 
 - Installer : 

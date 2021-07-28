@@ -6,7 +6,7 @@ chmod +x arpi
 sudo mv arpi /usr/local/bin
 echo " ---------- arpi is installed ---------- "
 echo " ---------- usage ---------- "
-echo " Note : arpi is built on nmap, to install nmap :"
+echo " Note : arpi is built on top nmap, to install nmap :"
 echo " sudo apt update && sudo apt install nmap"
 echo ""
 echo " - default network (192.168.1.0/24) : "
