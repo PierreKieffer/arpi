@@ -8,7 +8,7 @@
 
 Basic network scanner based on nmap for Raspberry Pi. 
 
-<img src="./assets/demo.gif" width="1000"/>
+<img src="./assets/demo.gif" height="500"/>
 
 
 </div>
