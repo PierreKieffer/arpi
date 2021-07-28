@@ -100,13 +100,19 @@ func (screen *BaseScreen) Update() {
 					return
 
 				case log := <-scanner.LogChan:
-					screen.Status.Text = log
-					time.Sleep(1 * time.Second)
-					termui.Render(screen.Status)
+
+					if log == "Network scan in progress ... " {
+						screen.Status.Text = log
+						screen.Status.TextStyle.Fg = termui.ColorRed
+						time.Sleep(1 * time.Second)
+						termui.Render(screen.Status)
+
+					}
 
 					if log == "Network scan completed" {
 
 						screen.Status.Text = fmt.Sprintf("%v : %v", log, scanner.Summary)
+						screen.Status.TextStyle.Fg = termui.ColorGreen
 						screen.UIList.Rows = BuildScanReport(scanner)
 						screen.UIList.SelectedRow = 0
 						time.Sleep(1 * time.Second)
@@ -138,7 +144,7 @@ func (screen *BaseScreen) HandleSelectItem() {
 		screen.Screen = "scan"
 
 		screen.UIList.Rows = []string{}
-		screen.UIList.Title = "Network scan report"
+		screen.UIList.Title = " Network scan report "
 		screen.Status = widgets.NewParagraph()
 		screen.Status.Text = ""
 		screen.Display = nil

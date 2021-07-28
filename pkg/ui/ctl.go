@@ -20,7 +20,7 @@ func BuildHeader() *widgets.Paragraph {
 
 func Home() (*widgets.List, *widgets.Paragraph) {
 	options := widgets.NewList()
-	options.Title = "Home"
+	options.Title = " Home "
 	options.Rows = []string{" Scan ", " About "}
 
 	details := widgets.NewParagraph()
